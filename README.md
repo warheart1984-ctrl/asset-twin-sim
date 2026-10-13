@@ -20,6 +20,7 @@ in-process simulator. This code never touches a real machine.
 
 - a cycle never executes; execution needs an explicit approval that is still the newest for that asset
 - a veto and an execute cannot both win; two executes cannot both win; an approval is recorded before it can be used
+- human verdicts are capability-scoped: `memory.write` can approve, while `asset_twin.veto` can hold/veto without approval rights; repeated terminal verdicts are rejected
 - stale or replayed telemetry is rejected, also after a restart (sequence and health are recovered from the verified chain)
 - if the audit trail is broken, nothing acts; the execution intent is written before the asset moves
 - memory is bounded (per-asset retention, per-tenant asset cap)
@@ -36,6 +37,12 @@ What is **not** here: the REST endpoints (`/api/jarvis/asset-twin/{cycle,decide,
 `app/main.py` together with its auth (write scope, tenant). `tests/test_asset_twin.py` includes API-level tests that import
 `app.main` and so cannot run here until a small FastAPI layer (or a thin adapter) is added; the core tests in that file are
 independent of it.
+
+At the core boundary, `app.asset_twin.authorization.Principal` and
+`AuthorizationPolicy` provide the auth contract for that adapter. A verified
+read-only principal cannot change a verdict; a veto-only principal can stop a
+decision; and a writer can approve it. The adapter should pass that principal
+to `service.decide_human` rather than treating the reviewer name as authority.
 
 Extracted from the `asset-twin-sim-veto` branch of persistence-memory at `f46c813`.
 

@@ -12,6 +12,7 @@ import os
 import threading
 
 from .decision import build_decision
+from .authorization import DEFAULT_POLICY, Principal
 from .evidence import get_ledger
 from .execution import execute_approved
 from .models import CycleResponse, DecisionPacket, ExecutionResult, Telemetry, VetoDecision
@@ -85,9 +86,10 @@ def _cycle_lock(key: str) -> threading.Lock:
         return lock
 
 
-def run_cycle(tenant: str, telemetry: Telemetry) -> CycleResponse:
+def run_cycle(tenant: str, telemetry: Telemetry, principal: Principal | None = None) -> CycleResponse:
     """One cycle for one asset at a time: the whole read-modify-write (sequence check, health, decision, evidence) runs under
     that asset's lock, so sequence N+1 cannot finish first and then be overwritten by an older N still in flight."""
+    DEFAULT_POLICY.authorize_write(tenant, principal or Principal.internal(tenant))
     key = f"{tenant}:{telemetry.asset_id}"
     ledger = get_ledger()
     with _lock:  # bound what a caller can make the service hold: unique asset ids would otherwise grow memory without limit
@@ -190,7 +192,18 @@ def _run_accepted_cycle(tenant: str, telemetry: Telemetry) -> CycleResponse:
     return CycleResponse(decision=decision, veto=veto, degraded=degraded)
 
 
-def decide_human(tenant: str, verdict: VetoDecision, actor: str | None = None) -> dict:
+def decide_human(
+    tenant: str,
+    verdict: VetoDecision,
+    actor: str | None = None,
+    principal: Principal | None = None,
+) -> dict:
+    # Existing in-process users are trusted by construction.  A caller at an
+    # HTTP/auth boundary must pass the verified principal; that is where the
+    # distinction between read, write, and emergency-veto capabilities is
+    # enforced.
+    effective_principal = principal or Principal.internal(tenant, actor or tenant)
+    DEFAULT_POLICY.authorize(tenant, verdict.verdict, effective_principal)
     with _lock:
         owned = (tenant, verdict.decision_id) in _decisions
     if not owned:
@@ -200,7 +213,8 @@ def decide_human(tenant: str, verdict: VetoDecision, actor: str | None = None) -
     record = {
         "decision_id": verdict.decision_id, "verdict": verdict.verdict,
         "reviewer": verdict.reviewer, "reason": verdict.reason, "at": verdict.at,
-        "actor": actor or tenant,
+        "actor": effective_principal.name,
+        "authorization_policy": "asset-twin.verdict.v1",
     }
     try:
         if verdict.verdict == "approve":
@@ -217,12 +231,13 @@ def decide_human(tenant: str, verdict: VetoDecision, actor: str | None = None) -
     return {"veto": rec.model_dump(mode="json")}
 
 
-def execute(tenant: str, decision_id: str, asset_id: str) -> ExecutionResult:
+def execute(tenant: str, decision_id: str, asset_id: str, principal: Principal | None = None) -> ExecutionResult:
     from datetime import datetime, timezone
 
     def _at() -> str:
         return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
+    DEFAULT_POLICY.authorize_write(tenant, principal or Principal.internal(tenant))
     with _lock:
         decision = _decisions.get((tenant, decision_id))
     if decision is None:
