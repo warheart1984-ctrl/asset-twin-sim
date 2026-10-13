@@ -3,7 +3,7 @@ name = "asset-twin-sim"
 version = "0.1.0"
 description = "Simulation-only asset twin with a human veto gate and a hash-chained evidence ledger"
 requires-python = ">=3.11"
-dependencies = ["pydantic>=2"]
+dependencies = ["pydantic>=2", "cryptography>=43"]
 
 [project.optional-dependencies]
 dev = ["pytest", "fastapi", "httpx"]

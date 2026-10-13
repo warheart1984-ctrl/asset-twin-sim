@@ -38,3 +38,28 @@ What is **not** here: the REST endpoints (`/api/jarvis/asset-twin/{cycle,decide,
 independent of it.
 
 Extracted from the `asset-twin-sim-veto` branch of persistence-memory at `f46c813`.
+
+## State-decay test harness v0.3
+
+The deterministic harness compares a static-authorization baseline with a
+per-step execution gate:
+
+```bash
+python -m app.asset_twin.state_decay_harness
+```
+
+It uses a discrete clock, seed-derived Ed25519 permits, atomic motion steps,
+strict freshness and threshold rules, and a canonical in-memory evidence
+chain. The report covers the State B shift, in-tolerance drift, stale/missing/
+future/malformed readings, repeated shifts, boundary values, an explicit
+oracle, and a tamper check. In the main case the baseline runs the next step
+under changed conditions while the gated arm records `HOLD` before that step
+and runs zero steps under State B.
+
+This is a simulation comparison only. It does not establish a general claim
+about token systems or real lifting equipment. Hash-chain verification detects
+edits to the recorded chain; signing or anchoring the evidence log is outside
+v0.3.
+
+The shareable run evidence is recorded in
+[`evidence/state_decay_v03_shareable-run.md`](evidence/state_decay_v03_shareable-run.md).
