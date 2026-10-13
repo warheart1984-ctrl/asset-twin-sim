@@ -62,7 +62,11 @@ class EvidenceLedger:
         self._path = path or (_dir() / "audit.jsonl")
         self._lock = threading.Lock()
         self._last: dict[str, str] = {}  # tenant -> digest of its newest record
-        self._seen: tuple[int, int, int] | None = None  # (size, mtime_ns, inode) as this ledger last wrote or verified the file
+        # The file version is shared by every tenant, but each cached tenant head
+        # must remember the version at which it was verified.  Otherwise a check
+        # for tenant B can update one global marker and make a stale cached head
+        # for tenant A look current.
+        self._seen: dict[str, tuple[int, int, int] | None] = {}
 
     def _stat(self) -> tuple[int, int, int] | None:
         try:
@@ -85,7 +89,7 @@ class EvidenceLedger:
         head = self._last.get(tenant)
         if head is not None:
             now = self._stat()
-            if now == self._seen:
+            if now == self._seen.get(tenant):
                 return head
             try:
                 text = self._path.read_text(encoding="utf-8")
@@ -98,7 +102,7 @@ class EvidenceLedger:
                     f"evidence file for tenant {tenant!r} changed while the service was running ({detail}); "
                     "refusing to append or authorise anything"
                 )
-            self._seen = now
+            self._seen[tenant] = now
             return head
         try:
             text = self._path.read_text(encoding="utf-8")
@@ -108,7 +112,7 @@ class EvidenceLedger:
         if problems:
             raise EvidenceChainError(f"evidence chain for tenant {tenant!r} is broken ({'; '.join(problems)}); refusing to append")
         self._last[tenant] = head
-        self._seen = self._stat()
+        self._seen[tenant] = self._stat()
         return head
 
     def check(self, tenant: str) -> None:
@@ -130,7 +134,7 @@ class EvidenceLedger:
             with self._path.open("a", encoding="utf-8") as fh:
                 fh.write(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n")
             self._last[tenant] = digest  # only once the record is on disk
-            self._seen = self._stat()
+            self._seen[tenant] = self._stat()
             return record
 
     def last_measurement_seq(self, tenant: str, asset_id: str) -> int | None:

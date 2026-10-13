@@ -64,12 +64,14 @@ class VetoGate:
             current = self._records.get(verdict.decision_id)
             if current is None:
                 raise KeyError("unknown decision")
-            if current.status == "expired" and verdict.verdict == "approve":
-                raise ValueError("decision expired or superseded by newer telemetry; it cannot be approved")
+            if current.status == "expired":
+                raise ValueError("decision expired or superseded by newer telemetry; it cannot be changed")
             if current.status in ("executing", "executed", "safe_state"):
                 raise ValueError("already executing or executed; the veto is too late")
-            if current.status == "vetoed" and verdict.verdict == "approve":
-                raise ValueError("vetoed decisions cannot be re-approved; create a new cycle")
+            if current.status in ("vetoed", "held"):
+                raise ValueError("decision already has a terminal stop verdict")
+            if current.status == "approved" and verdict.verdict == "approve":
+                raise ValueError("decision is already approved; repeated verdict is not recorded")
             mapping = {"approve": "approved", "veto": "vetoed", "hold": "held"}
             if before_commit is not None:
                 before_commit()
