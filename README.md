@@ -34,9 +34,8 @@ import app.asset_twin.service as svc
 ```
 
 What is **not** here: the REST endpoints (`/api/jarvis/asset-twin/{cycle,decide,execute,audit}`), which still live in the ledger's
-`app/main.py` together with its auth (write scope, tenant). `tests/test_asset_twin.py` includes API-level tests that import
-`app.main` and so cannot run here until a small FastAPI layer (or a thin adapter) is added; the core tests in that file are
-independent of it.
+`app/main.py` together with its auth (write scope, tenant). `tests/test_asset_twin.py` skips those API-level tests when
+`app.main` cannot be imported. The core tests in that file do not need the HTTP layer and run on their own.
 
 At the core boundary, `app.asset_twin.authorization.Principal` and
 `AuthorizationPolicy` provide the auth contract for that adapter. A verified
