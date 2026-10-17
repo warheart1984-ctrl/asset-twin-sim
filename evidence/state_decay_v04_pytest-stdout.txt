@@ -1,0 +1,46 @@
+# Combined v0.3 + v0.4 state-decay pytest stdout
+# Re-run captured by a Cursor cloud agent on 2026-10-17T12:12:44Z
+# Command: /tmp/state-decay-pytest-venv/bin/python -m pytest -v tests/test_state_decay_harness.py tests/test_state_decay_v04_harness.py
+# Working directory: /workspace
+# Git commit tested: 8b9ae0e0cf34996c4a0465164f1ad3f2baa7bd71
+# Python: Python 3.12.3
+# OS: Ubuntu 24.04.5 LTS (Linux 6.12.94+ x86_64)
+# pytest: pytest 9.1.1
+#
+# Verbatim combined stdout+stderr follows. stderr was empty, so the bytes below are the pytest stdout unchanged.
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.7.0 -- /tmp/state-decay-pytest-venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspace
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 25 items
+
+tests/test_state_decay_harness.py::test_shift_proves_hold_blocks_the_next_atomic_step PASSED [  4%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[shift_between_steps] PASSED [  8%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[drift_inside_tolerance] PASSED [ 12%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[stale_reading] PASSED [ 16%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[missing_reading] PASSED [ 20%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[future_dated_reading] PASSED [ 24%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[malformed_reading] PASSED [ 28%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[several_shifts] PASSED [ 32%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[age_exactly_X] PASSED [ 36%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[age_X_plus_1] PASSED [ 40%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[thresholds_exact] PASSED [ 44%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[threshold_just_past] PASSED [ 48%]
+tests/test_state_decay_harness.py::test_every_v03_variation_matches_its_explicit_oracle[one_required_reading_stale] PASSED [ 52%]
+tests/test_state_decay_harness.py::test_same_seed_reproduces_tokens_decisions_and_evidence_hashes PASSED [ 56%]
+tests/test_state_decay_harness.py::test_oracle_fixture_fingerprint_is_fixed_before_execution PASSED [ 60%]
+tests/test_state_decay_harness.py::test_ed25519_permit_is_invalid_after_payload_tampering PASSED [ 64%]
+tests/test_state_decay_harness.py::test_human_note_is_evidence_only_and_never_an_override PASSED [ 68%]
+tests/test_state_decay_harness.py::test_cli_emits_a_passing_report PASSED [ 72%]
+tests/test_state_decay_v04_harness.py::test_v04_oracle_is_fixed_before_execution PASSED [ 76%]
+tests/test_state_decay_v04_harness.py::test_each_isolated_fixture_matches_oracle_and_action_trace[ground_bearing_change_only] PASSED [ 80%]
+tests/test_state_decay_v04_harness.py::test_each_isolated_fixture_matches_oracle_and_action_trace[ground_bearing_control] PASSED [ 84%]
+tests/test_state_decay_v04_harness.py::test_each_isolated_fixture_matches_oracle_and_action_trace[outrigger_load_change_only] PASSED [ 88%]
+tests/test_state_decay_v04_harness.py::test_each_isolated_fixture_matches_oracle_and_action_trace[outrigger_load_control] PASSED [ 92%]
+tests/test_state_decay_v04_harness.py::test_ground_and_load_changes_are_independently_causal PASSED [ 96%]
+tests/test_state_decay_v04_harness.py::test_v04_cli_prints_the_action_boundary_proof PASSED [100%]
+
+============================== 25 passed in 0.30s ==============================
