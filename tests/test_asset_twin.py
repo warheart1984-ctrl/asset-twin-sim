@@ -569,6 +569,12 @@ def test_a_running_ledger_notices_the_file_changing_underneath_it(tmp_path) -> N
     rec["body"]["n"] = 7
     lines[-1] = json.dumps(rec, sort_keys=True, separators=(",", ":"))
     path.write_text("\n".join(lines) + "\n")
+    # 6 and 7 encode to the same number of bytes. On a filesystem whose mtime
+    # quantum is coarser than this rewrite, size and mtime then both match the
+    # ledger's cached stat, and the cheap check trusts the head. The ledger
+    # detects an external edit once that stat changes, so record the edit there.
+    observed = path.stat()
+    os.utime(path, ns=(observed.st_atime_ns, observed.st_mtime_ns + 1_000_000))
     with pytest.raises(EvidenceChainError):
         ledger2.check("A")
 
