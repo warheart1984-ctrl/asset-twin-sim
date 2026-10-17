@@ -70,3 +70,22 @@ v0.3.
 
 The shareable run evidence is recorded in
 [`evidence/state_decay_v03_shareable-run.md`](evidence/state_decay_v03_shareable-run.md).
+
+## State-decay test harness v0.4
+
+The v0.4 isolation run keeps the v0.3 conditions and clock, changing only one
+admissibility input at a time. Its pre-registration is in
+[`evidence/state_decay_v04_preregistration.md`](evidence/state_decay_v04_preregistration.md),
+and the exact CLI stdout is preserved in
+[`evidence/state_decay_v04_cli-transcript.md`](evidence/state_decay_v04_cli-transcript.md).
+
+Run it with:
+
+```bash
+.venv/bin/python -m app.asset_twin.state_decay_v04_harness --seed shareable-v04
+```
+
+The v0.4 harness records an explicit action invocation list. In an isolated
+negative case, `gated_step_2_action_invoked=False` and the gated invocation list
+is `[1]`; this is a simulation trace of the execution boundary, not a physical
+kill-switch or a measurement of real-world latency.
