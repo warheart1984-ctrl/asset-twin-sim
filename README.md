@@ -95,3 +95,11 @@ The associated environment package snapshot is preserved in
 It was captured after the original v0.3 run from the persisted `.venv`, so it
 improves reproducibility but does not retroactively prove the exact package
 versions installed on the historical run date.
+
+The re-run dependency snapshot is
+[`evidence/requirements-lock.txt`](evidence/requirements-lock.txt), the `pip freeze`
+output from a clean virtualenv that installed the declared dependencies
+(`pydantic>=2`, `cryptography>=43`, and the `dev` extra `pytest`, `fastapi`,
+`httpx`). That re-run used Python 3.12.3 on Ubuntu 24.04.5 LTS (Linux 6.12.94+
+x86_64). This snapshot is from the re-run environment, not the original 13 Oct
+v0.3 run.
