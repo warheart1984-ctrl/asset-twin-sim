@@ -102,3 +102,10 @@ output from a clean virtualenv that installed the declared dependencies
 `httpx`). That re-run used Python 3.12.3 on Ubuntu 24.04.5 LTS (Linux 6.12.94+
 x86_64). This snapshot is from the re-run environment, not the original 13 Oct
 v0.3 run.
+
+## License
+
+Copyright (c) 2026 Jon Halstead. All rights reserved.
+
+This software and its documentation are proprietary. No permission is granted to use, copy, modify, distribute, sublicense or create derivative works without prior written permission from Jon Halstead. Viewing the public repository does not grant a license. Inquiries go to the repository owner.
+
